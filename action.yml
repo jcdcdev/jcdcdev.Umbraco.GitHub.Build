@@ -79,6 +79,33 @@ runs:
     - name: Determine Version
       id: gitversion
       uses: gittools/actions/gitversion/execute@v0
+      with:
+        overrideConfig: |
+          branches:
+            version-main:
+              regex: ^v(\d+)$
+              mode: ContinuousDelivery
+              tag: ''
+              increment: Patch
+              prevent-increment-of-merged-branch-version: true
+              track-merge-target: false
+              source-branches: [ 'version-develop' ]
+              tracks-release-branches: false
+              is-release-branch: false
+              is-mainline: true
+              pre-release-weight: 55000
+            version-develop:
+              regex: ^dev(elop)?(ment)?/(\d+)$
+              mode: ContinuousDeployment
+              tag: alpha
+              increment: Minor
+              prevent-increment-of-merged-branch-version: false
+              track-merge-target: true
+              source-branches: []
+              tracks-release-branches: true
+              is-release-branch: false
+              is-mainline: false
+              pre-release-weight: 0
     - name: Get Version
       shell: bash
       id: get-version
