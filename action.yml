@@ -1,0 +1,120 @@
+name: "🏗️ Build Umbraco Packages"
+description: ""
+author: "James Carter"
+branding:
+  icon: "refresh-cw"
+  color: "gray-dark"
+outputs:
+  artifact-name:
+    description: "Artifact name"
+    value: ${{ jobs.build.outputs.artifact-name }}
+  version:
+    description: "Version"
+    value: ${{ jobs.determine-version.outputs.package-version }}
+inputs:
+  project-name:
+    description: "Project name"
+    required: true
+  project-path:
+    description: "Project path"
+    required: true
+  npm-working-dir:
+    description: "NPM working directory"
+    required: false
+  npm-enabled:
+    description: "NPM enabled"
+    required: false
+    default: "false"
+  npm-run-command:
+    description: "NPM run command"
+    required: false
+    default: "build"
+  npm-version:
+    description: "NPM version"
+    required: false
+    default: "21.x"
+  dotnet-version:
+    description: ".NET version"
+    required: false
+    default: "8.0.x"
+  build-output:
+    description: "Build output"
+    required: false
+    default: "./build-output"
+  artifact-output:
+    description: "Artifact output"
+    required: false
+    default: "./build-assets"
+  dotnet-pack:
+    description: "Run dotnet pack"
+    required: false
+    default: "true"
+  umbraco-version:
+    description: "Umbraco version"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Set env
+      shell: bash
+      run: |
+        echo "PROJECT_PATH=${{ inputs.project-path }}" >> $GITHUB_ENV
+        echo "NPM_WORKING_DIR=${{ inputs.npm-working-dir }}" >> $GITHUB_ENV
+        echo "NPM_ENABLED=${{ inputs.npm-enabled }}" >> $GITHUB_ENV
+        echo "NPM_RUN_COMMAND=${{ inputs.npm-run-command }}" >> $GITHUB_ENV
+        echo "NPM_VERSION=${{ inputs.npm-version }}" >> $GITHUB_ENV
+        echo "DOTNET_VERSION=${{ inputs.dotnet-version }}" >> $GITHUB_ENV
+        echo "BUILD_OUTPUT=${{ inputs.build-output }}" >> $GITHUB_ENV
+        echo "ARTIFACT_OUTPUT=${{ inputs.artifact-output }}" >> $GITHUB_ENV
+        echo "DOTNET_PACK=${{ inputs.dotnet-pack }}" >> $GITHUB_ENV
+        echo "UMBRACO_VERSION=${{ inputs.umbraco-version }}" >> $GITHUB_ENV
+        ARTIFACT_NAME="${{ inputs.project-name }}-${{ needs.determine-version.outputs.package-version }}"
+        echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
+        echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0
+      with:
+        versionSpec: "5.x"
+    - name: Determine Version
+      id: gitversion
+      uses: gittools/actions/gitversion/execute@v0
+    - name: Get Version
+      shell: bash
+      id: get-version
+      run: |
+        version=$UMBRACO_VERSION.${{ steps.gitversion.outputs.Minor }}.${{ steps.gitversion.outputs.Patch}}
+        if [ -n "${{ steps.gitversion.outputs.NuGetPreReleaseTagV2 }}" ]; then
+          version="${version}-${{ steps.gitversion.outputs.NuGetPreReleaseTagV2 }}"
+        fi
+        echo "$version"
+        echo "PACKAGE_VERSION=$version" >> $GITHUB_ENV
+    - uses: actions/setup-node@v3
+      if: ${{ env.NPM_ENABLED == 'true' }}
+      with:
+        node-version: ${{ env.NPM_VERSION }}
+    - if: ${{ env.NPM_ENABLED == 'true' }}
+      shell: bash
+      run: |
+        pushd ${{ env.NPM_WORKING_DIR }}
+        npm install
+        npm run ${{ env.NPM_RUN_COMMAND }}
+        popd
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Build project
+      shell: bash
+      run: dotnet build ${{ env.PROJECT_PATH }} --configuration Release -p:Version=${{ env.PACKAGE_VERSION }} --output ${{ env.ARTIFACT_OUTPUT }} -p:UmbracoVersion=${{ env.UMBRACO_VERSION }} --source https://api.nuget.org/v3/index.json /maxcpucount:1
+    - name: Pack
+      shell: bash
+      if: ${{ env.DOTNET_PACK == 'true' }}
+      run: dotnet pack ${{ env.PROJECT_PATH }} --configuration Release -p:Version=${{ env.PACKAGE_VERSION }} --output ${{ env.ARTIFACT_OUTPUT }} -p:UmbracoVersion=${{ env.UMBRACO_VERSION }}
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: "${{ env.ARTIFACT_OUTPUT }}/**/*.nupkg"
