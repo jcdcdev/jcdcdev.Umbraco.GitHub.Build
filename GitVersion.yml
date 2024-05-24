@@ -99,7 +99,7 @@ branches:
     is-mainline: true
     pre-release-weight: 55000
   version-develop:
-    regex: ^dev(elop)?(ment)?/(\d+)$
+    regex: ^dev(elop)?(ment)?/v(\d+)$
     mode: ContinuousDeployment
     tag: alpha
     increment: Minor
