@@ -7,10 +7,10 @@ branding:
 outputs:
   artifact-name:
     description: "Artifact name"
-    value: ${{ jobs.build.outputs.artifact-name }}
+    value: ${{ steps.get-version.artifact-name }}
   version:
     description: "Version"
-    value: ${{ jobs.determine-version.outputs.package-version }}
+    value: ${{ steps.get-version.package-version }}
 inputs:
   project-name:
     description: "Project name"
@@ -56,6 +56,7 @@ runs:
   using: "composite"
   steps:
     - name: Set env
+      id: set-env
       shell: bash
       run: |
         echo "PROJECT_PATH=${{ inputs.project-path }}" >> $GITHUB_ENV
@@ -68,9 +69,6 @@ runs:
         echo "ARTIFACT_OUTPUT=${{ inputs.artifact-output }}" >> $GITHUB_ENV
         echo "DOTNET_PACK=${{ inputs.dotnet-pack }}" >> $GITHUB_ENV
         echo "UMBRACO_VERSION=${{ inputs.umbraco-version }}" >> $GITHUB_ENV
-        ARTIFACT_NAME="${{ inputs.project-name }}-${{ needs.determine-version.outputs.package-version }}"
-        echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
-        echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
@@ -91,6 +89,11 @@ runs:
         fi
         echo "$version"
         echo "PACKAGE_VERSION=$version" >> $GITHUB_ENV
+        ARTIFACT_NAME="${{ inputs.project-name }}-$version"
+        echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
+
+        echo "package-version=$version" >> $GITHUB_OUTPUT
+        echo "artifact-name=${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
     - uses: actions/setup-node@v3
       if: ${{ env.NPM_ENABLED == 'true' }}
       with:
