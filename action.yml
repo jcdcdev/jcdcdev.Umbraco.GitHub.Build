@@ -7,10 +7,10 @@ branding:
 outputs:
   artifact-name:
     description: "Artifact name"
-    value: ${{ steps.get-version.artifact-name }}
+    value: ${{ steps.get-version.outputs.artifact-name }}
   version:
     description: "Version"
-    value: ${{ steps.get-version.package-version }}
+    value: ${{ steps.get-version.outputs.package-version }}
 inputs:
   project-name:
     description: "Project name"
