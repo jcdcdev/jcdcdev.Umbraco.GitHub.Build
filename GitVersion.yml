@@ -98,18 +98,7 @@ branches:
     is-release-branch: false
     is-mainline: true
     pre-release-weight: 55000
-  version-develop-10:
-    regex: ^dev/v10$
-    mode: ContinuousDeployment
-    tag: alpha
-    increment: Patch
-    prevent-increment-of-merged-branch-version: false
-    track-merge-target: true
-    source-branches: []
-    tracks-release-branches: true
-    is-release-branch: false
-    is-mainline: false
-    pre-release-weight: 0
+
   version-12:
     regex: ^v12$
     mode: ContinuousDelivery
@@ -122,18 +111,7 @@ branches:
     is-release-branch: false
     is-mainline: true
     pre-release-weight: 55000
-  version-develop-12:
-    regex: ^dev/v12$
-    mode: ContinuousDeployment
-    tag: alpha
-    increment: Patch
-    prevent-increment-of-merged-branch-version: false
-    track-merge-target: true
-    source-branches: []
-    tracks-release-branches: true
-    is-release-branch: false
-    is-mainline: false
-    pre-release-weight: 0
+
   version-13:
     regex: ^v13$
     mode: ContinuousDelivery
@@ -146,18 +124,7 @@ branches:
     is-release-branch: false
     is-mainline: true
     pre-release-weight: 55000
-  version-develop-13:
-    regex: ^dev/v13$
-    mode: ContinuousDeployment
-    tag: alpha
-    increment: Patch
-    prevent-increment-of-merged-branch-version: false
-    track-merge-target: true
-    source-branches: []
-    tracks-release-branches: true
-    is-release-branch: false
-    is-mainline: false
-    pre-release-weight: 0
+
   version-14:
     regex: ^v14$
     mode: ContinuousDelivery
@@ -170,6 +137,45 @@ branches:
     is-release-branch: false
     is-mainline: true
     pre-release-weight: 55000
+  version-develop-10:
+    regex: ^dev/v10$
+    mode: ContinuousDeployment
+    tag: alpha
+    increment: Patch
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: true
+    source-branches: []
+    is-source-branch-for: ["version-10"]
+    tracks-release-branches: true
+    is-release-branch: false
+    is-mainline: false
+    pre-release-weight: 0
+  version-develop-12:
+    regex: ^dev/v12$
+    mode: ContinuousDeployment
+    tag: alpha
+    increment: Patch
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: true
+    source-branches: []
+    is-source-branch-for: ["version-12"]
+    tracks-release-branches: true
+    is-release-branch: false
+    is-mainline: false
+    pre-release-weight: 0
+  version-develop-13:
+    regex: ^dev/v13$
+    mode: ContinuousDeployment
+    tag: alpha
+    increment: Patch
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: true
+    source-branches: []
+    is-source-branch-for: ["version-13"]
+    tracks-release-branches: true
+    is-release-branch: false
+    is-mainline: false
+    pre-release-weight: 0
   version-develop-14:
     regex: ^dev/v14$
     mode: ContinuousDeployment
@@ -178,6 +184,7 @@ branches:
     prevent-increment-of-merged-branch-version: false
     track-merge-target: true
     source-branches: []
+    is-source-branch-for: ["version-14"]
     tracks-release-branches: true
     is-release-branch: false
     is-mainline: false
