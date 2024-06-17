@@ -32,7 +32,7 @@ inputs:
   npm-version:
     description: "NPM version"
     required: false
-    default: "21.x"
+    default: "20.x"
   dotnet-version:
     description: ".NET version"
     required: false

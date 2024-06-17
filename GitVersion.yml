@@ -98,7 +98,6 @@ branches:
     is-release-branch: false
     is-mainline: true
     pre-release-weight: 55000
-
   version-12:
     regex: ^v12$
     mode: ContinuousDelivery
@@ -111,7 +110,6 @@ branches:
     is-release-branch: false
     is-mainline: true
     pre-release-weight: 55000
-
   version-13:
     regex: ^v13$
     mode: ContinuousDelivery
@@ -124,7 +122,6 @@ branches:
     is-release-branch: false
     is-mainline: true
     pre-release-weight: 55000
-
   version-14:
     regex: ^v14$
     mode: ContinuousDelivery
