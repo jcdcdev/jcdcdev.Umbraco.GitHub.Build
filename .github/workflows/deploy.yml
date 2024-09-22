@@ -1,8 +1,8 @@
 name: Create Release and Push to Marketplace
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+  pull_request:
+      types: [ closed ]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -10,7 +10,7 @@ jobs:
       contents: write
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Install GitVersion
@@ -22,8 +22,8 @@ jobs:
       uses: gittools/actions/gitversion/execute@v0
     - name: Tag ${{ env.GitVersion_SemVer }}
       run: |
-        git config --local user.email "james@jcdc.dev"
-        git config --local user.name "James"
+        git config user.name "$env:GITHUB_ACTOR"
+        git config user.email "$env:GITHUB_ACTOR_ID+$env:GITHUB_ACTOR@users.noreply.github.com"
         git tag -a "$GitVersion_SemVer" -m "Release $GitVersion_SemVer"
     - name: Create Release ${{ env.GitVersion_SemVer }}
       uses: ncipollo/release-action@v1

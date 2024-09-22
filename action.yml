@@ -123,7 +123,7 @@ runs:
       if: ${{ env.DOTNET_PACK == 'true' }}
       run: dotnet pack ${{ env.PROJECT_PATH }} --configuration Release -p:Version=${{ env.PACKAGE_VERSION }} --output ${{ env.ARTIFACT_OUTPUT }} -p:UmbracoVersion=${{ env.UMBRACO_VERSION }}
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: "${{ env.ARTIFACT_OUTPUT }}/**/*.nupkg"
