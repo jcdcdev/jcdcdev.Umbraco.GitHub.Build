@@ -112,7 +112,7 @@ runs:
         npm run ${{ env.NPM_RUN_COMMAND }}
         popd
     - name: Setup .NET
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Build project
