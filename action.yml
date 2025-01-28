@@ -70,8 +70,10 @@ runs:
         echo "DOTNET_PACK=${{ inputs.dotnet-pack }}" >> $GITHUB_ENV
         echo "UMBRACO_VERSION=${{ inputs.umbraco-version }}" >> $GITHUB_ENV
 
-        has_gitversion_config=$(test -f GitVersion.yml && echo "true" || echo "false")
+        has_gitversion_config=$(test -f "GitVersion.yml" && echo true || echo false)
 
+        ls -la
+        echo "HAS GITVERSION CONFIG: $has_gitversion_config"
         echo "HAS_GITVERSION_CONFIG=$has_gitversion_config" >> $GITHUB_ENV
     - uses: actions/checkout@v4
       with:
