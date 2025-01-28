@@ -55,6 +55,9 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
     - name: Set env
       id: set-env
       shell: bash
@@ -75,9 +78,6 @@ runs:
         ls -la
         echo "HAS GITVERSION CONFIG: $has_gitversion_config"
         echo "HAS_GITVERSION_CONFIG=$has_gitversion_config" >> $GITHUB_ENV
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
     - name: Download GitVersion.yml
       shell: bash
       if: ${{ env.HAS_GITVERSION_CONFIG == 'false' }}
