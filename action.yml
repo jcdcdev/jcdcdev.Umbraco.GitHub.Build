@@ -69,11 +69,16 @@ runs:
         echo "ARTIFACT_OUTPUT=${{ inputs.artifact-output }}" >> $GITHUB_ENV
         echo "DOTNET_PACK=${{ inputs.dotnet-pack }}" >> $GITHUB_ENV
         echo "UMBRACO_VERSION=${{ inputs.umbraco-version }}" >> $GITHUB_ENV
+
+        has_gitversion_config=$(test -f GitVersion.yml && echo "true" || echo "false")
+
+        echo "HAS_GITVERSION_CONFIG=$has_gitversion_config" >> $GITHUB_ENV
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Download GitVersion.yml
       shell: bash
+      if: ${{ env.HAS_GITVERSION_CONFIG == 'false' }}
       run: curl -sSL https://raw.githubusercontent.com/jcdcdev/jcdcdev.Umbraco.GitHub.Build/main/GitVersion.yml -o GitVersion.yml
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v1.1.1
