@@ -72,12 +72,16 @@ runs:
         echo "ARTIFACT_OUTPUT=${{ inputs.artifact-output }}" >> $GITHUB_ENV
         echo "DOTNET_PACK=${{ inputs.dotnet-pack }}" >> $GITHUB_ENV
         echo "UMBRACO_VERSION=${{ inputs.umbraco-version }}" >> $GITHUB_ENV
-
         has_gitversion_config=$(test -f "GitVersion.yml" && echo true || echo false)
-
-        ls -la
-        echo "HAS GITVERSION CONFIG: $has_gitversion_config"
+        
         echo "HAS_GITVERSION_CONFIG=$has_gitversion_config" >> $GITHUB_ENV
+
+        get_version=true
+        if [[ $GITHUB_REF == refs/heads/snyk* ]]; then
+          get_version=false
+        fi
+
+        echo "GET_VERSION=$get_version" >> $GITHUB_ENV
     - name: Download GitVersion.yml
       shell: bash
       if: ${{ env.HAS_GITVERSION_CONFIG == 'false' }}
@@ -86,20 +90,27 @@ runs:
       uses: gittools/actions/gitversion/setup@v1.1.1
       with:
         versionSpec: "5.x"
+      if: ${{ env.GET_VERSION == 'true' }}
     - name: Determine Version
       id: gitversion
       uses: gittools/actions/gitversion/execute@v1.1.1
       with:
         useConfigFile: true
         configFilePath: "GitVersion.yml"
+      if: ${{ env.GET_VERSION == 'true' }}
     - name: Get Version
       shell: bash
       id: get-version
       run: |
-        version=$UMBRACO_VERSION.${{ steps.gitversion.outputs.Minor }}.${{ steps.gitversion.outputs.Patch}}
-        if [ -n "${{ steps.gitversion.outputs.NuGetPreReleaseTagV2 }}" ]; then
-          version="${version}-${{ steps.gitversion.outputs.NuGetPreReleaseTagV2 }}"
+        if [ ${{ env.GET_VERSION }} == "true" ]; then
+          version=$UMBRACO_VERSION.${{ steps.gitversion.outputs.Minor }}.${{ steps.gitversion.outputs.Patch}}
+          if [ -n "${{ steps.gitversion.outputs.NuGetPreReleaseTagV2 }}" ]; then
+            version="${version}-${{ steps.gitversion.outputs.NuGetPreReleaseTagV2 }}"
+          fi
+        else
+          version=$UMBRACO_VERSION.0.0-alpha-1
         fi
+
         echo "$version"
         echo "PACKAGE_VERSION=$version" >> $GITHUB_ENV
         ARTIFACT_NAME="${{ inputs.project-name }}-$version"
