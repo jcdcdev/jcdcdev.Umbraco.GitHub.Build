@@ -2,9 +2,10 @@ name: 🚀 Deploy
 on:
   workflow_dispatch:
   pull_request:
-      types: [ closed ]
+    types: [closed]
   push:
     branches:
+      - v[0-9]+
       - main
 jobs:
   build:
@@ -12,42 +13,45 @@ jobs:
     permissions:
       contents: write
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0
-      with:
-        versionSpec: '5.x'
-    - name: Determine Version
-      id: gitversion
-      uses: gittools/actions/gitversion/execute@v0
-    - name: Tag ${{ steps.gitversion.outputs.semVer }}
-      run: |
-        git config user.name "$env:GITHUB_ACTOR"
-        git config user.email "$env:GITHUB_ACTOR_ID+$env:GITHUB_ACTOR@users.noreply.github.com"
-        git tag -a "$GitVersion_SemVer" -m "Release $GitVersion_SemVer"
-    - name: Push ${{ steps.gitversion.outputs.semVer }}
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        force: true
-        tags: true
-    - uses: jcdcdev/jcdcdev.Github.GenerateChangelog@main
-      id: changelog
-      with:
-        version: ${{ steps.gitversion.outputs.semVer }}
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        include-version-as-heading: true
-        include-compare-link: true
-        include-links: true
-    - name: Create Release ${{ steps.gitversion.outputs.semVer }}
-      uses: ncipollo/release-action@v1
-      with:
-        prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
-        generateReleaseNotes: false
-        body: ${{ steps.changelog.outputs.changelog }}
-        tag: ${{ steps.gitversion.outputs.semVer }}
-        allowUpdates: true
-        makeLatest: true
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v4.2.0
+        with:
+          versionSpec: "6.x"
+      - name: Determine Version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v4.2.0
+      - name: Tag ${{ steps.gitversion.outputs.semVer }}
+        run: |
+          git config user.name "$env:GITHUB_ACTOR"
+          git config user.email "$env:GITHUB_ACTOR_ID+$env:GITHUB_ACTOR@users.noreply.github.com"
+
+          git tag -a "v$GitVersion_SemVer" -m "Release v$GitVersion_SemVer"
+          git tag -a "v$GitVersion_Major.$GitVersion_Minor" -m "Release v$GitVersion_Major.$GitVersion_Minor"
+          git tag -a "v$GitVersion_Major" -m "Release v$GitVersion_Major"
+      - name: Push ${{ steps.gitversion.outputs.semVer }}
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          force: true
+          tags: true
+      - uses: jcdcdev/jcdcdev.Github.GenerateChangelog@main
+        id: changelog
+        with:
+          version: ${{ steps.gitversion.outputs.semVer }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          include-version-as-heading: true
+          include-compare-link: true
+          include-links: true
+      - name: Create Release ${{ steps.gitversion.outputs.semVer }}
+        uses: ncipollo/release-action@v1
+        with:
+          prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
+          generateReleaseNotes: false
+          body: ${{ steps.changelog.outputs.changelog }}
+          tag: ${{ steps.gitversion.outputs.semVer }}
+          allowUpdates: true
+          makeLatest: true
