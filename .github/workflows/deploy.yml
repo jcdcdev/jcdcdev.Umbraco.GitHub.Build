@@ -52,6 +52,6 @@ jobs:
           prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
           generateReleaseNotes: false
           body: ${{ steps.changelog.outputs.changelog }}
-          tag: ${{ steps.gitversion.outputs.semVer }}
+          tag: "v${{ steps.gitversion.outputs.semVer }}"
           allowUpdates: true
           makeLatest: true
