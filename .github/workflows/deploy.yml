@@ -30,8 +30,8 @@ jobs:
           git config user.email "$env:GITHUB_ACTOR_ID+$env:GITHUB_ACTOR@users.noreply.github.com"
 
           git tag -a "v$GitVersion_SemVer" -m "Release v$GitVersion_SemVer"
-          git tag -a "v$GitVersion_Major.$GitVersion_Minor" -m "Release v$GitVersion_Major.$GitVersion_Minor"
-          git tag -a "v$GitVersion_Major" -m "Release v$GitVersion_Major"
+          git tag -a "v$GitVersion_Major.$GitVersion_Minor" -m "Release v$GitVersion_Major.$GitVersion_Minor" -f
+          git tag -a "v$GitVersion_Major" -m "Release v$GitVersion_Major" -f
       - name: Push ${{ steps.gitversion.outputs.semVer }}
         uses: ad-m/github-push-action@master
         with:
