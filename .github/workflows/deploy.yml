@@ -41,7 +41,7 @@ jobs:
       - uses: jcdcdev/jcdcdev.Github.GenerateChangelog@main
         id: changelog
         with:
-          version: ${{ steps.gitversion.outputs.semVer }}
+          version: "v${{ steps.gitversion.outputs.semVer }}"
           github-token: ${{ secrets.GITHUB_TOKEN }}
           include-version-as-heading: true
           include-compare-link: true
