@@ -49,9 +49,6 @@ inputs:
     description: "Run dotnet pack"
     required: false
     default: "true"
-  umbraco-version:
-    description: "Umbraco version"
-    required: true
 runs:
   using: "composite"
   steps:
@@ -70,7 +67,6 @@ runs:
         echo "BUILD_OUTPUT=${{ inputs.build-output }}" >> $GITHUB_ENV
         echo "ARTIFACT_OUTPUT=${{ inputs.artifact-output }}" >> $GITHUB_ENV
         echo "DOTNET_PACK=${{ inputs.dotnet-pack }}" >> $GITHUB_ENV
-        echo "UMBRACO_VERSION=${{ inputs.umbraco-version }}" >> $GITHUB_ENV
 
         echo "NODE_VERSION=${{ inputs.node-version }}" >> $GITHUB_ENV
         has_gitversion_config=$(test -f "GitVersion.yml" && echo true || echo false)
@@ -96,10 +92,7 @@ runs:
       shell: bash
       id: get-version
       run: |
-        version=$UMBRACO_VERSION.${{ steps.gitversion.outputs.Minor }}.${{ steps.gitversion.outputs.Patch}}
-        if [ -n "${{ steps.gitversion.outputs.NuGetPreReleaseTagV2 }}" ]; then
-          version="${version}-${{ steps.gitversion.outputs.NuGetPreReleaseTagV2 }}"
-        fi
+        version="${{ steps.gitversion.outputs.SemVer }}"
         echo "$version"
         echo "PACKAGE_VERSION=$version" >> $GITHUB_ENV
         ARTIFACT_NAME="${{ inputs.project-name }}-$version"
@@ -124,11 +117,11 @@ runs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Build project
       shell: bash
-      run: dotnet build ${{ env.PROJECT_PATH }} --configuration Release -p:Version=${{ env.PACKAGE_VERSION }} --output ${{ env.ARTIFACT_OUTPUT }} -p:UmbracoVersion=${{ env.UMBRACO_VERSION }} --source https://api.nuget.org/v3/index.json /maxcpucount:1
+      run: dotnet build ${{ env.PROJECT_PATH }} --configuration Release -p:Version=${{ env.PACKAGE_VERSION }} --output ${{ env.ARTIFACT_OUTPUT }} --source https://api.nuget.org/v3/index.json /maxcpucount:1
     - name: Pack
       shell: bash
       if: ${{ env.DOTNET_PACK == 'true' }}
-      run: dotnet pack ${{ env.PROJECT_PATH }} --configuration Release -p:Version=${{ env.PACKAGE_VERSION }} --output ${{ env.ARTIFACT_OUTPUT }} -p:UmbracoVersion=${{ env.UMBRACO_VERSION }}
+      run: dotnet pack ${{ env.PROJECT_PATH }} --configuration Release -p:Version=${{ env.PACKAGE_VERSION }} --output ${{ env.ARTIFACT_OUTPUT }}
     - name: Upload artifact
       uses: actions/upload-artifact@v5
       with:
