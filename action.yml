@@ -36,7 +36,7 @@ inputs:
   dotnet-version:
     description: ".NET version"
     required: false
-    default: "8.0.x"
+    default: "10.0.x"
   build-output:
     description: "Build output"
     required: false
