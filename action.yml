@@ -32,11 +32,7 @@ inputs:
   node-version:
     description: "Node version"
     required: false
-    default: "20.x"
-  npm-version:
-    description: "Obsolete - Please use node-version. This will be removed in future versions."
-    required: false
-    default: ""
+    default: "22.x"
   dotnet-version:
     description: ".NET version"
     required: false
@@ -76,13 +72,7 @@ runs:
         echo "DOTNET_PACK=${{ inputs.dotnet-pack }}" >> $GITHUB_ENV
         echo "UMBRACO_VERSION=${{ inputs.umbraco-version }}" >> $GITHUB_ENV
 
-        if [ -z "${{ inputs.npm-version }}" ]; then
-          echo "NODE_VERSION=${{ inputs.node-version }}" >> $GITHUB_ENV
-        else
-          echo "Warning: 'npm-version' input is obsolete. Please use 'node-version' instead. This will be removed in future versions." >&2
-          echo "NODE_VERSION=${{ inputs.npm-version }}" >> $GITHUB_ENV
-        fi
-
+        echo "NODE_VERSION=${{ inputs.node-version }}" >> $GITHUB_ENV
         has_gitversion_config=$(test -f "GitVersion.yml" && echo true || echo false)
 
         ls -la
