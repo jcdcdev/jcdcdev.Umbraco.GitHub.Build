@@ -29,10 +29,14 @@ inputs:
     description: "NPM run command"
     required: false
     default: "build"
-  npm-version:
-    description: "NPM version"
+  node-version:
+    description: "Node version"
     required: false
     default: "20.x"
+  npm-version:
+    description: "Obsolete - Please use node-version. This will be removed in future versions."
+    required: false
+    default: ""
   dotnet-version:
     description: ".NET version"
     required: false
@@ -55,7 +59,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
     - name: Set env
@@ -66,12 +70,18 @@ runs:
         echo "NPM_WORKING_DIR=${{ inputs.npm-working-dir }}" >> $GITHUB_ENV
         echo "NPM_ENABLED=${{ inputs.npm-enabled }}" >> $GITHUB_ENV
         echo "NPM_RUN_COMMAND=${{ inputs.npm-run-command }}" >> $GITHUB_ENV
-        echo "NPM_VERSION=${{ inputs.npm-version }}" >> $GITHUB_ENV
         echo "DOTNET_VERSION=${{ inputs.dotnet-version }}" >> $GITHUB_ENV
         echo "BUILD_OUTPUT=${{ inputs.build-output }}" >> $GITHUB_ENV
         echo "ARTIFACT_OUTPUT=${{ inputs.artifact-output }}" >> $GITHUB_ENV
         echo "DOTNET_PACK=${{ inputs.dotnet-pack }}" >> $GITHUB_ENV
         echo "UMBRACO_VERSION=${{ inputs.umbraco-version }}" >> $GITHUB_ENV
+
+        if [ -z "${{ inputs.npm-version }}" ]; then
+          echo "NODE_VERSION=${{ inputs.node-version }}" >> $GITHUB_ENV
+        else
+          echo "Warning: 'npm-version' input is obsolete. Please use 'node-version' instead. This will be removed in future versions." >&2
+          echo "NODE_VERSION=${{ inputs.npm-version }}" >> $GITHUB_ENV
+        fi
 
         has_gitversion_config=$(test -f "GitVersion.yml" && echo true || echo false)
 
@@ -81,14 +91,14 @@ runs:
     - name: Download GitVersion.yml
       shell: bash
       if: ${{ env.HAS_GITVERSION_CONFIG == 'false' }}
-      run: curl -sSL https://raw.githubusercontent.com/jcdcdev/jcdcdev.Umbraco.GitHub.Build/main/GitVersion.yml -o GitVersion.yml
+      run: curl -sSL https://raw.githubusercontent.com/jcdcdev/jcdcdev.Umbraco.GitHub.Build/v0/config/GitVersion.yml -o GitVersion.yml
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v1.1.1
+      uses: gittools/actions/gitversion/setup@v3
       with:
         versionSpec: "5.x"
     - name: Determine Version
       id: gitversion
-      uses: gittools/actions/gitversion/execute@v1.1.1
+      uses: gittools/actions/gitversion/execute@v3
       with:
         useConfigFile: true
         configFilePath: "GitVersion.yml"
@@ -107,10 +117,10 @@ runs:
 
         echo "package-version=$version" >> $GITHUB_OUTPUT
         echo "artifact-name=${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v6
       if: ${{ env.NPM_ENABLED == 'true' }}
       with:
-        node-version: ${{ env.NPM_VERSION }}
+        node-version: ${{ env.NODE_VERSION }}
     - if: ${{ env.NPM_ENABLED == 'true' }}
       shell: bash
       run: |
@@ -119,7 +129,7 @@ runs:
         npm run ${{ env.NPM_RUN_COMMAND }}
         popd
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Build project
@@ -130,7 +140,7 @@ runs:
       if: ${{ env.DOTNET_PACK == 'true' }}
       run: dotnet pack ${{ env.PROJECT_PATH }} --configuration Release -p:Version=${{ env.PACKAGE_VERSION }} --output ${{ env.ARTIFACT_OUTPUT }} -p:UmbracoVersion=${{ env.UMBRACO_VERSION }}
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: "${{ env.ARTIFACT_OUTPUT }}/**/*.nupkg"
