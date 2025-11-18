@@ -49,6 +49,10 @@ inputs:
     description: "Run dotnet pack"
     required: false
     default: "true"
+  strict-umbraco-version:
+    description: "Fails the build if the computed Git Major Version does not match this Action's Major version - Used to ensure builds are deterministic for Umbraco releases."
+    required: false
+    default: "true"
 runs:
   using: "composite"
   steps:
@@ -67,6 +71,7 @@ runs:
         echo "BUILD_OUTPUT=${{ inputs.build-output }}" >> $GITHUB_ENV
         echo "ARTIFACT_OUTPUT=${{ inputs.artifact-output }}" >> $GITHUB_ENV
         echo "DOTNET_PACK=${{ inputs.dotnet-pack }}" >> $GITHUB_ENV
+        echo "UMBRACO_VERSION=17" >> $GITHUB_ENV
 
         echo "NODE_VERSION=${{ inputs.node-version }}" >> $GITHUB_ENV
         has_gitversion_config=$(test -f "GitVersion.yml" && echo true || echo false)
@@ -100,6 +105,16 @@ runs:
 
         echo "package-version=$version" >> $GITHUB_OUTPUT
         echo "artifact-name=${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
+    - name: Check Umbraco Version
+      id: check-umbraco-version
+      shell: bash
+      if: ${{ inputs.strict-umbraco-version == 'true' }}
+      run: |
+        if [ "${{ steps.gitversion.outputs.Major }}" != "$UMBRACO_VERSION" ]; then
+          echo "Umbraco version mismatch: expected $UMBRACO_VERSION but got ${{ steps.gitversion.outputs.Major }}"
+          echo "Check the branch you are building from is correct, GitVersion.yml is configured correctly and that you are using the correct version of this Action for the Umbraco version you are building."
+          exit 1
+        fi
     - uses: actions/setup-node@v6
       if: ${{ env.NPM_ENABLED == 'true' }}
       with:
