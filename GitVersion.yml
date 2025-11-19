@@ -1,8 +1,8 @@
-workflow: ''
+workflow: ""
 assembly-versioning-scheme: MajorMinorPatch
 assembly-file-versioning-scheme: MajorMinorPatch
-tag-prefix: '[vV]?'
-commit-date-format: 'yyyy-MM-dd'
+tag-prefix: "[vV]?"
+commit-date-format: "yyyy-MM-dd"
 version-in-branch-pattern: '^(dev/)?v(?<version>\d+).*'
 tag-pre-release-weight: 60000
 commit-message-incrementing: Enabled
@@ -15,60 +15,14 @@ branches:
     release-vX:
         regex: '^v(?<version>\d+)$'
         mode: ContinuousDeployment
-        label: ''
-        increment: Patch
-        is-main-branch: false
-        prevent-increment:
-            of-merged-branch: true
-        source-branches: [ ]
-        pre-release-weight: 55000
-    develop-vX:
-        regex: '^dev\/v(?<version>\d+)$'
-        mode: ContinuousDelivery
-        label: 'alpha'
-        increment: Patch
-        source-branches: [ ]
-        is-main-branch: false
-        pre-release-weight: 30000
-    main:
-        regex: ^master$|^main$
-        mode: ContinuousDelivery
         label: ""
         increment: Patch
-        is-main-branch: true
+        is-main-branch: false
         prevent-increment:
             of-merged-branch: true
-        source-branches: [ ]
+        source-branches: []
         pre-release-weight: 55000
-    pull-request:
-        mode: ContinuousDelivery
-        label: PullRequest{Number}
-        increment: Inherit
-        prevent-increment:
-            of-merged-branch: false
-            when-current-commit-tagged: false
-        track-merge-message: true
-        regex: ^(pull-requests|pull|pr)[\/-](?<Number>\d*)
-        source-branches:
-            - release-vX
-            - develop-vX
-            - main
-        pre-release-weight: 30000
-    unknown:
-        mode: ContinuousDelivery
-        label: '{BranchName}'
-        increment: Inherit
-        prevent-increment:
-            when-current-commit-tagged: true
-        regex: (?<BranchName>.+)
-        source-branches:
-            - release-vX
-            - develop-vX
-            - pull-request
-            - main
-        pre-release-weight: 0
 
 ignore:
-    sha: [ ]
-    paths: [ ]                              
-
+    sha: []
+    paths: []
