@@ -39,7 +39,7 @@ jobs:
           force: true
           tags: true
           branch: ${{ github.ref }}
-      - uses: jcdcdev/jcdcdev.Github.GenerateChangelog@main
+      - uses: jcdcdev/jcdcdev.Github.GenerateChangelog@v1
         id: changelog
         with:
           version: "v${{ steps.gitversion.outputs.semVer }}"
