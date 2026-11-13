@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Build
         id: build
-        uses: jcdcdev/jcdcdev.Umbraco.Github.Build@main
+        uses: jcdcdev/jcdcdev.Umbraco.Github.Build@v19
         with:
           project-name: Umbraco.Community.SimpleDashboards
           project-path: src/Umbraco.Community.SimpleDashboards/Umbraco.Community.SimpleDashboards.csproj

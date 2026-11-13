@@ -56,7 +56,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v7.0.1
       with:
         fetch-depth: 0
     - name: Set env
@@ -84,12 +84,12 @@ runs:
       if: ${{ env.HAS_GITVERSION_CONFIG == 'false' }}
       run: curl -sSL https://raw.githubusercontent.com/jcdcdev/jcdcdev.Umbraco.GitHub.Build/refs/tags/v18/config/GitVersion.yml -o GitVersion.yml
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v4.5.0
+      uses: gittools/actions/gitversion/setup@v4.7.0
       with:
         versionSpec: "6.x"
     - name: Determine Version
       id: gitversion
-      uses: gittools/actions/gitversion/execute@v4.5.0
+      uses: gittools/actions/gitversion/execute@v4.7.0
       with:
         configFilePath: "GitVersion.yml"
     - name: Get Version
@@ -114,7 +114,7 @@ runs:
           echo "Check the branch you are building from is correct, GitVersion.yml is configured correctly and that you are using the correct version of this Action for the Umbraco version you are building."
           exit 1
         fi
-    - uses: actions/setup-node@v6
+    - uses: actions/setup-node@v7.1.0
       if: ${{ env.NPM_ENABLED == 'true' }}
       with:
         node-version: ${{ env.NODE_VERSION }}
@@ -126,7 +126,7 @@ runs:
         npm run ${{ env.NPM_RUN_COMMAND }}
         popd
     - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6.1.0
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Build project
@@ -137,7 +137,7 @@ runs:
       if: ${{ env.DOTNET_PACK == 'true' }}
       run: dotnet pack ${{ env.PROJECT_PATH }} --configuration Release -p:Version=${{ env.PACKAGE_VERSION }} --output ${{ env.ARTIFACT_OUTPUT }}
     - name: Upload artifact
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7.0.2
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: "${{ env.ARTIFACT_OUTPUT }}/**/*.nupkg"
