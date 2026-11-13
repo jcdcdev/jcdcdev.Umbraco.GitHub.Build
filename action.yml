@@ -71,7 +71,7 @@ runs:
         echo "BUILD_OUTPUT=${{ inputs.build-output }}" >> $GITHUB_ENV
         echo "ARTIFACT_OUTPUT=${{ inputs.artifact-output }}" >> $GITHUB_ENV
         echo "DOTNET_PACK=${{ inputs.dotnet-pack }}" >> $GITHUB_ENV
-        echo "UMBRACO_VERSION=18" >> $GITHUB_ENV
+        echo "UMBRACO_VERSION=19" >> $GITHUB_ENV
 
         echo "NODE_VERSION=${{ inputs.node-version }}" >> $GITHUB_ENV
         has_gitversion_config=$(test -f "GitVersion.yml" && echo true || echo false)
@@ -82,7 +82,7 @@ runs:
     - name: Download GitVersion.yml
       shell: bash
       if: ${{ env.HAS_GITVERSION_CONFIG == 'false' }}
-      run: curl -sSL https://raw.githubusercontent.com/jcdcdev/jcdcdev.Umbraco.GitHub.Build/refs/tags/v18/config/GitVersion.yml -o GitVersion.yml
+      run: curl -sSL https://raw.githubusercontent.com/jcdcdev/jcdcdev.Umbraco.GitHub.Build/refs/tags/v19/config/GitVersion.yml -o GitVersion.yml
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v4.7.0
       with:
